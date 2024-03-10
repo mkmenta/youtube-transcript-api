@@ -118,7 +118,7 @@ class TranscriptList(object):
         self._manually_created_transcripts = manually_created_transcripts
         self._generated_transcripts = generated_transcripts
         self._translation_languages = translation_languages
-        self._default_transcript = default_transcript
+        self.default_transcript = default_transcript
 
     @staticmethod
     def build(http_client, video_id, captions_json):

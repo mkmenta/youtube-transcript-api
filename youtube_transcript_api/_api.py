@@ -136,7 +136,7 @@ class YouTubeTranscriptApi(object):
         assert isinstance(video_id, str), "`video_id` must be a string"
         transcripts = cls.list_transcripts(video_id, proxies, cookies)
         if languages is None:
-            return transcripts._default_transcript.fetch(preserve_formatting=preserve_formatting)
+            return transcripts.default_transcript.fetch(preserve_formatting=preserve_formatting)
         else:
             return transcripts.find_transcript(languages).fetch(preserve_formatting=preserve_formatting)
 
