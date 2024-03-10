@@ -1,8 +1,8 @@
 import requests
-try: # pragma: no cover
+try:  # pragma: no cover
     import http.cookiejar as cookiejar
     CookieLoadError = (FileNotFoundError, cookiejar.LoadError)
-except ImportError: # pragma: no cover
+except ImportError:  # pragma: no cover
     import cookielib as cookiejar
     CookieLoadError = IOError
 
@@ -112,7 +112,7 @@ class YouTubeTranscriptApi(object):
         return data, unretrievable_videos
 
     @classmethod
-    def get_transcript(cls, video_id, languages=('en',), proxies=None, cookies=None, preserve_formatting=False):
+    def get_transcript(cls, video_id, languages=None, proxies=None, cookies=None, preserve_formatting=False):
         """
         Retrieves the transcript for a single video. This is just a shortcut for calling::
 
@@ -134,7 +134,11 @@ class YouTubeTranscriptApi(object):
         :rtype [{'text': str, 'start': float, 'end': float}]:
         """
         assert isinstance(video_id, str), "`video_id` must be a string"
-        return cls.list_transcripts(video_id, proxies, cookies).find_transcript(languages).fetch(preserve_formatting=preserve_formatting)
+        transcripts = cls.list_transcripts(video_id, proxies, cookies)
+        if languages is None:
+            return transcripts._default_transcript.fetch(preserve_formatting=preserve_formatting)
+        else:
+            return transcripts.find_transcript(languages).fetch(preserve_formatting=preserve_formatting)
 
     @classmethod
     def _load_cookies(cls, cookies, video_id):

@@ -98,7 +98,8 @@ class TranscriptList(object):
     for a given YouTube video. Also it provides functionality to search for a transcript in a given language.
     """
 
-    def __init__(self, video_id, manually_created_transcripts, generated_transcripts, translation_languages):
+    def __init__(self, video_id, manually_created_transcripts, generated_transcripts, translation_languages,
+                 default_transcript):
         """
         The constructor is only for internal use. Use the static build method instead.
 
@@ -110,11 +111,14 @@ class TranscriptList(object):
         :type generated_transcripts: dict[str, Transcript]
         :param translation_languages: list of languages which can be used for translatable languages
         :type translation_languages: list[dict[str, str]]
+        :param default_transcript_i: the default transcript
+        :type default_transcript_i: Transcript
         """
         self.video_id = video_id
         self._manually_created_transcripts = manually_created_transcripts
         self._generated_transcripts = generated_transcripts
         self._translation_languages = translation_languages
+        self._default_transcript = default_transcript
 
     @staticmethod
     def build(http_client, video_id, captions_json):
@@ -140,7 +144,9 @@ class TranscriptList(object):
         manually_created_transcripts = {}
         generated_transcripts = {}
 
-        for caption in captions_json['captionTracks']:
+        default_transcript_i = captions_json['audioTracks'][captions_json['defaultAudioTrackIndex']]['defaultCaptionTrackIndex']
+        default_transcript = None
+        for i, caption in enumerate(captions_json['captionTracks']):
             if caption.get('kind', '') == 'asr':
                 transcript_dict = generated_transcripts
             else:
@@ -155,12 +161,15 @@ class TranscriptList(object):
                 caption.get('kind', '') == 'asr',
                 translation_languages if caption.get('isTranslatable', False) else [],
             )
+            if i == default_transcript_i:
+                default_transcript = transcript_dict[caption['languageCode']]
 
         return TranscriptList(
             video_id,
             manually_created_transcripts,
             generated_transcripts,
             translation_languages,
+            default_transcript
         )
 
     def __iter__(self):
