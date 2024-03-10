@@ -147,7 +147,9 @@ class TranscriptList(object):
         if len(captions_json['captionTracks']) == 1:
             default_transcript_i = 0
         else:
-            default_transcript_i = captions_json['audioTracks'][captions_json['defaultAudioTrackIndex']]['defaultCaptionTrackIndex']
+            default_transcript_i = captions_json['audioTracks'][
+                captions_json['defaultAudioTrackIndex']].get(
+                'defaultCaptionTrackIndex', None)
         default_transcript = None
         for i, caption in enumerate(captions_json['captionTracks']):
             if caption.get('kind', '') == 'asr':
@@ -166,7 +168,12 @@ class TranscriptList(object):
             )
             if i == default_transcript_i:
                 default_transcript = transcript_dict[caption['languageCode']]
-
+        if default_transcript is None and generated_transcripts:
+            generated_lang = list(generated_transcripts.keys())[0]
+            if generated_lang in manually_created_transcripts:
+                default_transcript = manually_created_transcripts[generated_lang]
+            else:
+                default_transcript = generated_transcripts[generated_lang]
         return TranscriptList(
             video_id,
             manually_created_transcripts,
