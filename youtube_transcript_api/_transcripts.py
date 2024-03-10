@@ -144,7 +144,10 @@ class TranscriptList(object):
         manually_created_transcripts = {}
         generated_transcripts = {}
 
-        default_transcript_i = captions_json['audioTracks'][captions_json['defaultAudioTrackIndex']]['defaultCaptionTrackIndex']
+        if len(captions_json['captionTracks']) == 1:
+            default_transcript_i = 0
+        else:
+            default_transcript_i = captions_json['audioTracks'][captions_json['defaultAudioTrackIndex']]['defaultCaptionTrackIndex']
         default_transcript = None
         for i, caption in enumerate(captions_json['captionTracks']):
             if caption.get('kind', '') == 'asr':
